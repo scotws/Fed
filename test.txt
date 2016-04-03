@@ -1,2 +1,0 @@
-This is a test. I would like to add a third line.
-This is another test. After this all, we need a cat.

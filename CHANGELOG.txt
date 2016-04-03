@@ -1,6 +1,0 @@
-Changelog of major developments for 
-Ed-like Forth line editor
-Scot W. Stevenson <scot.stevenson@gmail.com>
-
-Add new entries to the top
-
