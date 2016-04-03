@@ -11,7 +11,7 @@ SO WHAT'S THIS ED THING ANYWAY?
 Ed is a simple line editor, the oldest editor still shipped with modern Unix systems. The first version was written in 1971. Today it mostly used in jokes ("Vim? EMACS? Real programmers use ed!") and some shell scripts. 
 
 
-WHAT'S A LINE EDITOR? SOUNDS PRIMITIV.
+WHAT'S A LINE EDITOR? SOUNDS PRIMITIVE.
 
 It is. As the name says, you are not free to move around the text as with a full-screen editor such as vim, but work one line at a time. Even worse, with ed, if you want to change a word in a line, you have to retype the whole line. And by default, the only error message you will get from ed is "?". For everything.
 
