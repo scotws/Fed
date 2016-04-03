@@ -1,0 +1,386 @@
+Manual for fed, a simple ed-inspired line editor for Forth
+Scot W. Stevenson scot.stevenson@gmail.com
+First version: 25. July 2015
+This version: 16. March 2016
+
+
+INTRODUCTION
+
+Fed is a small, simple line-based text editor in Forth. I created for my own
+implementations of the language for the 65816 8/16-bit hybrid CPU (FEHLT). At
+the time, the only simple editors available in Forth were of the traditional
+screen-based kind, which I simply do not like. Inspired by the Unix editor ed
+(FEHLT), the aim was to create something that could be included almost by
+default even in very simple Forth systems instead. 
+
+Currently, the long-term plan is to create a second, far more powerful editor at some point in the future. This is the "Far Future Forth Editor" project. One of fed's secondary goals is to provide me with the learning experience.
+
+The code is writting for Gforth (FEHLT). Care was taken to avoid Gforth-specific commands. 
+
+
+OVERVIEW
+
+Forth editors traditionally work with a "screen-based" format of 16 lines of 64
+characters for a total of 1024 bytes per screen (a "block"). See
+https://groups.google.com/forum/#!topic/comp.lang.forth/f1S_EotSc7g for
+examples of these editors, which can be very, very short, and the Gforth Manual
+page on Blocks at
+https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Blocks.html
+. Nowadays, of course, large Forth systems use files and "normal" editors such
+as the clasics vim and EMACS.
+
+Block-based editors however can be wasteful and require at least some basic
+rendering commands that might not be present with a hobbist system. In
+contrast, line editors care about the screen at all, they just print lines to
+the whatever output are there. Ed in fact was created in an age when output was
+to paper teletypes. The price for this flexibility is that they are actually
+a bit more complex than block editors. 
+
+
+BASIC COMMAND STRUCTURE
+
+Like ed, fed commands are composed of a "range" parameter that tells us which
+line or lines we are dealing with and the actually command. This works well
+with Forth because the range goes on the stack. For single lines, we have: 
+
+1         - The first line. Note fed does not start the count at zero, because zero is used to return empty results.
+$     - The last line. Taken from ed.
+FEHLT - The previous line (ed uses "-")
+FEHLT - The next line (ed uses "+")
+FEHLT - The current line (ed uses ".")
+
+
+For ranges, we use: 
+
+1 5        - Lines from 1 to 5. Where ed uses a comma notation (eg "1,5") we push two numbers on the stack.
+
+%        - All lines. Ed uses ";" which is too important in Forth to overwrite, "%" is a synonym. Internally, 
+fed translates this to the range from 1 to $, so this is a multi-line parameter, though it is only typed as
+one character.
+
+Fed does no error or bounds checking. 
+
+
+LIST OF FED COMMANDS
+
+Most of these are taken from ed or inspired by them. "n" means a single-line parameter, "n m" a multi-line version. Note that where ed uses the same command for single- and multi-line operations (eg "p" to print one or more lines), we can't do that in Forth because we have no way of knowing how many parameters are on the stack. We solve this problem by doubling the original ed command: 
+
+n p                - "Print" line n to screen (without line numbers)
+n m pp                - "Print" lines n to m screen (without line numbers)
+
+This currently gives us these further commands:
+
+
+n n                - Print line n (with line numbers)
+n m nn                - Print lines n to m (with line numbers)
+
+
+n c                - Editor line n ("change")
+
+
+n d                - "Delete" line n
+n m dd                - "Delete" lines n to m 
+
+
+j                - "Join" the current line with the one below it [WON'T WORK, FORTH J]
+n m jj                - "Join" the lines n to m. N is then the new current line.
+
+
+n a                - "Append" new line below line n and start editing
+n i                 - "Insert" new line above line n and start editing [WON'T WORK FORTH I]
+
+
+n y                - "yank" line n into the cut buffer
+n m yy                - "Yank" lines n to m into the cut buffer
+
+
+n x                - "Insert" cut buffer after line n. Use 0 to insert it before the whole text.
+
+
+File commands. To get ( addr u ), use a normal Forth sequence such as s" FILENAME" . 
+
+
+addr u e        - "Edit" the file ( addr u ). Current contents of the buffer will be lost. 
+n addr u r        - "Read" file ( addr u ) to line n
+addr u w        - "Write" whole buffer (all lines) to file ( addr u )
+n m addr u ww        - "Write" lines n to m to file ( addr u ) 
+
+
+USE OF THE "C" COMMAND
+
+
+
+STARTING FED (BASED ON GFORTH)
+
+After starting Gforth 
+
+
+
+
+USING FED IN SCRIPTS
+
+Since fed commands are just normal Forth words, they can be included in other programs to a certain degree. 
+
+
+
+MISSING ED FEATURES THAT WILL (PROBABLY) BE ADDED
+
+A whole host of commands are not supported, including 
+
+Fed currently does not have a search feature. This is one of the main priorities for the next version.
+There is no way to undo changes. 
+
+
+(See TODO.txt for more details)
+
+MISSING ED FEATURES THAT (PROBABLY) WON'T BE ADDED
+
+Regular expressions. Adding them would increase the size and complexity of fed dramatically. Also, writing software to support regular expressions is slightly less fun than summoning Cthulhu, and this is currently a hobby project, not an exercise in masochism.
+
+
+KNOWN ISSUES
+
+Internally, fed uses a doubly-linked list with sentinels to store the lines of the text. Though this is a simple structure -- which is why it was chosen -- it is neither the most space efficient nor the fastest. 
+
+
+LITERATURE AND LINKS 
+
+See the 6502.org Forum at http://forum.6502.org/viewtopic.php?f=9&t=3375 for the discussion thread on this editor.
+
+Since the thread about screen editors in Forth resurfaced (http://forum.6502.org/viewtopic.php?f=9&t=2941), this might be a good time to ask if there is a general ASCII [i]non--screen based[/i] editor in the language. Because I can't seem to find one (see http://forum.6502.org/viewtopic.php?f=9&t=2576 for more screen stuff, for example), and at some point I'm going to need one for the Übersquirrel. 
+
+My research and ideas so far, in case other people have the same problem at some point: 
+
+The [b]standard text on the structure of editors[/b] seems to be "Data Structures for Text Sequences" by Charles Crowley (https://www.cs.unm.edu/~crowley/papers/sds.pdf). There is also "The Craft of Text Editing" by Craig A. Finseth (http://www.finseth.com/craft/) which uses (sigh) EMACS as an example. James Brown has a fantastic introduction to piece chains (http://www.catch22.net/tuts/piece
+Tins), one of the most highly recommended storage formats. There is a nice list of literature at http://texteditors.org/cgi-bin/wiki.pl?action=browse&diff=1&id=DesigningTextEditors&diffrevision=197 I'm (very) slowly working my way through, as I am through http://www.guckes.net/vi/mirror/ediger_bruce.perfect.editor.html . 
+
+
+What [b]I would like to have[/b] is something that is not screen based (this is the 21. century, and if I can't drive a flying car, at least I don't want to have to work in small units of text any more), will let me write texts in any reasonable length (say, up to the low mega-byte range, since I hope to have enough storage via SPI), and has auto-indent and undo as features (sad but true: Undo is really important in my life). 
+
+
+Based on what I have read so far, [b]I'm currently thinking[/b] it might make more sense to create two editors: One "far future" editor that does all that and includes the kitchen sink, with the data saved in a more efficient but complex struture (piece chains or buffer gap) structures. The other one, the first one, is really small, so small that it fits into the Forth implementation, and really simple, and always there. The "Far Future Forth Editor" (FFFE -- 6502 pun intended) is something I'll be kicking around for a few years before anything happens; I don't have the background yet. The small editor should be a lot easier; I'm thinking of basing it on ed.
+
+
+Wait! Come back! I can explain!
+
+
+If you are a Windows person and are wondering about the howls of laughter: ed (https://en.wikipedia.org/wiki/Ed_(text_editor) ) is a line-based editor that has been included with Unix since 1971. It is really, really primitive, to the point where you have to retype the whole line you are editing, and is terse even for Unix (the error message for everything is "?"). It's main usefulness today is for shell scripting and being a smar <a href="the [b]standard text on the structure of editors[/b] seems to be "Data Structures for Text Sequences" by Charles Crowley (https://www.cs.unm.edu/~crowley/papers/sds.pdf). There is also "The Craft of Text Editing" by Craig A. Finseth (http://www.finseth.com/craft/) which uses (sigh) EMACS as an example. James Brown has a fantastic introduction to piece chains (http://www.catch22.net/tuts/piece
+The Manual for fed, a simple ed-inspired line editor for Forth
+Scot W. Stevenson scot.stevenson@gmail.com
+First version: 25. July 2015
+This version: 25. July 2015
+
+
+
+
+INTRODUCTION
+
+
+Fed is a small, simple line-based text editor in Forth I created for my own implementations of the language for the 65816 8/16-bit hybrid CPU (FEHLT). At the time, the only simple editors available in Forth were of the traditional screen-based kind, which I simply do not like. Inspired by the Unix editor ed (FEHLT), the aim was to create something that could be included almost by default even in very simple Forth systems instead. 
+
+
+Currently, the long-term plan is to create a second, far more powerful editor at some point in the future. This is the "Far Future Forth Editor" project. One of fed's secondary goals is to provide me with the learning experience.
+
+
+The code is writting for Gforth (FEHLT). Care was taken to avoid Gforth-specific commands. 
+
+
+
+
+OVERVIEW
+
+
+Forth editors traditionally work with a "screen-based" format of 16 lines of 64 characters for a total of 1024 bytes per screen (a "block"). See https://groups.google.com/forum/#!topic/comp.lang.forth/f1S_EotSc7g for examples of these editors, which can be very, very short, and the Gforth Manual page on Blocks at https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Blocks.html . Nowadays, of course, large Forth systems use files and "normal" editors such as the clasics vim and EMACS.
+
+
+Block-based editors however can be wasteful and require at least some basic rendering commands that might not be present with a hobbist system. In contrast, line editors care about the screen at all, they just print lines to the whatever output are there. Ed in fact was created in an age when output was to paper teletypes. The price for this flexibility is that they are actually a bit more complex than block editors. 
+
+
+
+
+BASIC COMMAND STRUCTURE
+
+
+Like ed, fed commands are composed of a "range" parameter that tells us which line or lines we are dealing with and the actually command. This works well with Forth because the range goes on the stack. For single lines, we have: 
+
+
+1         - The first line. Note fed does not start the count at zero, because zero is used to return empty results.
+$        - The last line. Taken from ed.
+FEHLT - The previous line (ed uses "-")
+FEHLT - The next line (ed uses "+")
+FEHLT - The current line (ed uses ".")
+
+
+For ranges, we use: 
+
+
+1 5        - Lines from 1 to 5. Where ed uses a comma notation (eg "1,5") we push two numbers on the stack.
+%        - All lines. Ed uses ";" which is too important in Forth to overwrite, "%" is a synonym. Internally, 
+fed translates this to the range from 1 to $, so this is a multi-line parameter, though it is only typed as
+one character.
+
+
+Fed does no error or bounds checking. 
+
+
+
+
+LIST OF FED COMMANDS
+
+
+Most of these are taken from ed or inspired by them. "n" means a single-line parameter, "n m" a multi-line version. Note that where ed uses the same command for single- and multi-line operations (eg "p" to print one or more lines), we can't do that in Forth because we have no way of knowing how many parameters are on the stack. We solve this problem by doubling the original ed command: 
+
+
+n p                - "Print" line n to screen (without line numbers)
+n m pp                - "Print" lines n to m screen (without line numbers)
+
+
+This currently gives us these further commands:
+
+
+n n                - Print line n (with line numbers)
+n m nn                - Print lines n to m (with line numbers)
+
+
+n c                - Editor line n ("change")
+
+
+n d                - "Delete" line n
+n m dd                - "Delete" lines n to m 
+
+
+j                - "Join" the current line with the one below it [WON'T WORK, FORTH J]
+n m jj                - "Join" the lines n to m. N is then the new current line.
+
+
+n a                - "Append" new line below line n and start editing
+n i                 - "Insert" new line above line n and start editing [WON'T WORK FORTH I]
+
+
+n y                - "yank" line n into the cut buffer
+n m yy                - "Yank" lines n to m into the cut buffer
+
+
+n x                - "Insert" cut buffer after line n. Use 0 to insert it before the whole text.
+
+
+File commands. To get ( addr u ), use a normal Forth sequence such as s" FILENAME" . 
+
+
+addr u e        - "Edit" the file ( addr u ). Current contents of the buffer will be lost. 
+n addr u r        - "Read" file ( addr u ) to line n
+addr u w        - "Write" whole buffer (all lines) to file ( addr u )
+n m addr u ww        - "Write" lines n to m to file ( addr u ) 
+
+
+
+
+USE OF THE "C" COMMAND
+
+
+
+
+STARTING FED (BASED ON GFORTH)
+
+
+After starting Gforth 
+
+
+
+
+USING FED IN SCRIPTS
+
+
+Since fed commands are just normal Forth words, they can be included in other programs to a certain degree. 
+
+
+
+
+MISSING ED FEATURES THAT WILL (PROBABLY) BE ADDED
+
+
+A whole host of commands are not supported, including 
+
+
+Fed currently does not have a search feature. This is one of the main priorities for the next version.
+There is no way to undo changes. 
+
+
+(See TODO.txt for more details)
+
+
+
+
+MISSING ED FEATURES THAT (PROBABLY) WON'T BE ADDED
+
+
+Regular expressions. Adding them would increase the size and complexity of fed dramatically. Also, writing software to support regular expressions is slightly less fun than summoning Cthulhu, and this is currently a hobby project, not an exercise in masochism.
+
+
+
+
+KNOWN ISSUES
+
+
+Internally, fed uses a doubly-linked list with sentinels to store the lines of the text. Though this is a simple structure -- which is why it was chosen -- it is neither the most space efficient nor the fastest. 
+
+
+
+
+
+
+LITERATURE AND LINKS 
+
+
+See the 6502.org Forum at http://forum.6502.org/viewtopic.php?f=9&t=3375 for the discussion thread on this editor.
+
+
+
+
+------------------
+
+
+
+Since the thread about screen editors in Forth resurfaced (http://forum.6502.org/viewtopic.php?f=9&t=2941), this might be a good time to ask if there is a general ASCII [i]non--screen based[/i] editor in the language. Because I can't seem to find one (see http://forum.6502.org/viewtopic.php?f=9&t=2576 for more screen stuff, for example), and at some point I'm going to need one for the Übersquirrel. 
+
+
+My research and ideas so far, in case other people have the same problem at some point: 
+
+
+The [b]standard text on the structure of editors[/b] seems to be "Data Structures for Text Sequences" by Charles Crowley (https://www.cs.unm.edu/~crowley/papers/sds.pdf). There is also "The Craft of Text Editing" by Craig A. Finseth (http://www.finseth.com/craft/) which uses (sigh) EMACS as an example. James Brown has a fantastic introduction to piece chains (http://www.catch22.net/tuts/piece-chains), one of the most highly recommended storage formats. There is a nice list of literature at http://texteditors.org/cgi-bin/wiki.pl?action=browse&diff=1&id=DesigningTextEditors&diffrevision=197 I'm (very) slowly working my way through, as I am through http://www.guckes.net/vi/mirror/ediger_bruce.perfect.editor.html . 
+
+
+What [b]I would like to have[/b] is something that is not screen based (this is the 21. century, and if I can't drive a flying car, at least I don't want to have to work in small units of text any more), will let me write texts in any reasonable length (say, up to the low mega-byte range, since I hope to have enough storage via SPI), and has auto-indent and undo as features (sad but true: Undo is really important in my life). 
+
+
+Based on what I have read so far, [b]I'm currently thinking[/b] it might make more sense to create two editors: One "far future" editor that does all that and includes the kitchen sink, with the data saved in a more efficient but complex struture (piece chains or buffer gap) structures. The other one, the first one, is really small, so small that it fits into the Forth implementation, and really simple, and always there. The "Far Future Forth Editor" (FFFE -- 6502 pun intended) is something I'll be kicking around for a few years before anything happens; I don't have the background yet. The small editor should be a lot easier; I'm thinking of basing it on ed.
+
+
+Wait! Come back! I can explain!
+
+
+If you are a Windows person and are wondering about the howls of laughter: ed (https://en.wikipedia.org/wiki/Ed_(text_editor) ) is a line-based editor that has been included with Unix since 1971. It is really, really primitive, to the point where you have to retype the whole line you are editing, and is terse even for Unix (the error message for everything is "?"). It's main usefulness today is for shell scripting and being a smart-ass: Firing up ed is showing off. 
+
+
+But something ed-like fits the bill here wonderfully. Since it is line-orientated, we don't have to deal with text rendering and the complications of a full screen. We don't [i]care[/i] at all about the screen, because ed was designed for paper teletypes. Also, we now have something we can put on the Forth stack: The line number. So we go from [code]2d[/code] to delete line number 2 in ed to [code]2 d[/code] in Forth. Spans don't work that way, of course, because we don't know how many elements on the stack are for the editor. So instead of [code]1,10d[/code] we could use [code]1 10 dd[/code] (note double d). This way, "1,2p" becomes "1 2 pp". Some things need to be changed, of course: ";" for the whole text will have to use the synonym "%", search is going to be difficult, and there is no way in hell I am implementing regular expressions, because this seems to be akin to summoning Cthulhu. 
+
+
+Internally, we structure the text as a doubly linked list of lines (horribly inefficient for longer texts, but it will work and is trivial to implement) and convert those to the actual address in memory with a word such as, well, LINE.[code]
+: line ( u -- addr )  ( ... does stuff ... ) ; [/code] This gives us, say, a cell worth of lines. If our cell is 16 bits, we have 64k of lines max, and if each line is 256 byte max, this gives us -- surprise! -- 16 Mb as the theoretical maximal size of the text space, perfect for the 65816 (actual max size will be smaller of course because we have to fit the program etc in somewhere). Once we have the address where the line starts, we can do all sorts of things and can have the file located anywhere in memory, not only at the page or block boundries. 
+
+
+Oh, and since we're using Forth, we can easily beat ed in one feature: Instead of having to retype the whole line for changes (which my experiments with ed now allow me to confidently say sucks beyond belief), we should be able to just load it into the normal input line buffer and manipulate with backspace and delete and whatnot. Luxury!
+
+s: Firing up ed is showing off. 
+
+
+But something ed-like fits the bill here wonderfully. Since it is line-orientated, we don't have to deal with text rendering and the complications of a full screen. We don't [i]care[/i] at all about the screen, because ed was designed for paper teletypes. Also, we now have something we can put on the Forth stack: The line number. So we go from [code]2d[/code] to delete line number 2 in ed to [code]2 d[/code] in Forth. Spans don't work that way, of course, because we don't know how many elements on the stack are for the editor. So instead of [code]1,10d[/code] we could use [code]1 10 dd[/code] (note double d). This way, "1,2p" becomes "1 2 pp". Some things need to be changed, of course: ";" for the whole text will have to use the synonym "%", search is going to be difficult, and there is no way in hell I am implementing regular expressions, because this seems to be akin to summoning Cthulhu. 
+
+
+Internally, we structure the text as a doubly linked list of lines (horribly inefficient for longer texts, but it will work and is trivial to implement) and convert those to the actual address in memory with a word such as, well, LINE.[code]
+: line ( u -- addr )  ( ... does stuff ... ) ; [/code] This gives us, say, a cell worth of lines. If our cell is 16 bits, we have 64k of lines max, and if each line is 256 byte max, this gives us -- surprise! -- 16 Mb as the theoretical maximal size of the text space, perfect for the 65816 (actual max size will be smaller of course because we have to fit the program etc in somewhere). Once we have the address where the line starts, we can do all sorts of things and can have the file located anywhere in memory, not only at the page or block boundries. 
+
+Oh, and since we're using Forth, we can easily beat ed in one feature: Instead of having to retype the whole line for changes (which my experiments with ed now allow me to confidently say sucks beyond belief), we should be able to just load it into the normal input line buffer and manipulate with backspace and delete and whatnot. Luxury!
+
+
+So, that's the idea unless somebody pulls an editor out of their hats. Feedback and comments most welcome, of course.o, that's the idea unless somebody pulls an editor out of their hats. Feedback and comments most welcome, of course.
