@@ -33,27 +33,6 @@ decimal
 \ signals the end of the list
 variable text  0 text !
 
-\ Get a single line of text, add an EOL and store it. This is made
-\ harder than it should be because ACCEPT does not add a EOL itself, and does
-\ not allocate memory even when we save the string to HERE. However, we want
-\ to have the built-in line editing functions of ACCEPT, so we deal with it.
-: getlinetext  ( -- addr u)  
-   here dup  MAXCHARS  ( addr addr MAXCHARS) 
-   accept  ( addr u) 
-   dup allot  \ retroactively reserve the space we just used
-   EOL c, 1+ ; \ add EOL
-
-\ Get a line of text from the user and store it with dummy header information in
-\ memory. Returns address of the first header cell. Note NEWLINE is reserved
-\ by Gforth
-: getnewline ( -- addr )
-   here dup ( addr1 addr1)
-   0 , 0 ,  \ save space for header information
-   getlinetext  ( addr1 addr1 addr2 u)
-   -rot  ( addr1 u addr1 addr2 ) 
-   over !  ( addr1 u addr1 ) \ save address of line start first
-   cell+ ! ;  ( addr1 ) \ then save length of string
-
 \ Return the number of lines in the text, or, put differently, return the number
 \ of the last line. Use: "#LINES", to print the last line "#LINES P"
 : #lines  ( -- u) 
@@ -82,9 +61,6 @@ variable text  0 text !
       swap 1- ( addr+1 u-1)
    repeat
    drop ; 
-
-\ Return length of the line given its address. Includes the EOL character
-: linelength ( addr - u )  cell+ @ ; 
 
 \ See if line number given is out of range. We avoid CATCH and THROW because
 \ simple Forths might not include them
@@ -156,14 +132,13 @@ defer printcommand
 \ See if we have received the "end of input" (EOI) character, traditionally
 \ a "." as the first character in a new line. The line is two characters long
 \ because we also have the EOL character
-: eoi?  ( addr -- f )
-   dup linelength  2 =   ( addr f)
-   swap cell+ cell+ c@  EOI = ( f f ) 
+: eoi?  ( addr u -- f )
+   1 =   ( addr f)
+   swap c@  EOI = ( f f ) 
    and ; 
 
 \ Given the address of a new line, insert it after the line with the number u.
 \ If u is outside the range, silently append the new line to end of text
-\ Use: "GETNEWLINE 1 INSERT-LINE-AFTER", but used internally
 : insert-line-after  ( addr u -- ) 
    #lines min  ( addr-n u ) \ silently adjust range of target line)
    num>address  ( addr-n addr-a ) \ get address of append-target-line
@@ -174,16 +149,23 @@ defer printcommand
    swap ! ; \ link append-target to new line
 
 \ Given a line number, start appending text after it, inserting line by line. If
-\ number is out of range, we append to the end of the text. Use: "2 aa"
+\ number is out of range, we append to the end of the text. This is the main
+\ insertion word. It works by saving the string that is typed in at the position
+\ where it would be if the line is created, without committing at first.
 : aa  ( u -- ) 
    begin
-      cr getnewline  ( u addr )
-   dup eoi? invert while
-      over ( u addr u)
-      insert-line-after ( u )  
-      1+  ( u+1 ) 
+      here dup  ( u addr addr ) 
+      cell+ cell+ dup MAXCHARS  ( u addr addr+2 addr+2 u )
+      cr accept ( u addr addr+2 u ) 
+   tuck eoi? invert while
+      0 , 0 ,   ( u addr u ) \ add header
+      dup allot   \ retroactively reserve space we used for string
+      EOL c, 1+  ( u addr u+1 ) \ add EOL character and allot byte for it
+      over cell+ !  ( u addr ) \ save length of string
+      over insert-line-after 
+      1+ 
    repeat
-   2drop ; 
+   drop 2drop ; 
 
 \ Ease-of-use synonym to add lines to the end of the text. This is what you
 \ start off with when the text is empty. 
@@ -197,6 +179,10 @@ defer printcommand
    1-  \ move up one line before the one requested ...
    0 max  \ ... but not so far that we're negative
    aa ; 
+
+\ Ease-of-use synonym to add lines to top of the text. This is another thing you
+\ can start off with when the text is empty
+: 0ii  ( -- ) 0 ii ; 
 
 \ Delete a line of text. This is used internally and not to be used by the
 \ user
