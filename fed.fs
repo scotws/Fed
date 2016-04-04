@@ -34,7 +34,7 @@ decimal
 variable text  0 text !
 
 \ Return the number of lines in the text, or, put differently, return the number
-\ of the last line. Use: "#LINES", to print the last line "#LINES P"
+\ of the last line
 : #lines  ( -- u) 
    0  text   ( 0 addr)
    begin
@@ -46,7 +46,7 @@ variable text  0 text !
    repeat
    drop 1- ;   \ we always count one line too many
 
-\ Synonym for #LINES to make typing more intuitive
+\ Synonym for #LINES to make typing more intuitive. Use: "LASTLINE P"
 : lastline ( -- u )  #lines ; 
 
 \ Convert a line number of a text to address. Note we start counting at 1, not
@@ -73,7 +73,8 @@ variable text  0 text !
 \ Get number range for whole text. Returns "0 0" if no text.
 : all  ( -- n m )  empty? if 0 0 else 1 #lines then ; 
 
-\ Convert line address to TYPE format. Includes the EOL character
+\ Convert line's payload to TYPE format, using its address. Includes the EOL 
+\ character
 : address>type ( addr -- addr u )
    cell+ dup @ ( addr+1 u) \ get length of string
    swap cell+ swap ; ( addr+2 u) \ get addr of first char
