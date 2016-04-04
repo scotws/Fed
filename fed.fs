@@ -2,7 +2,7 @@
 \ Copyright 2016 Scot W. Stevenson <scot.stevenson@gmail.com>
 \ Written with gforth 0.7
 \ First version: 10. Jul 2015 
-\ This version: 03. April 2016
+\ This version: 04. April 2016
 
 \ This program is placed in the public domain
 
@@ -24,6 +24,7 @@ hex
 0a constant EOL   \ ASCII Line Feed (LF) is end of line character
 8 constant INDENT \ number of spaces between line number and line text
 char . constant EOI  \ End of Input (EOI) character, usuall "." 
+10000 constant MAXFILESIZE \ 64Kb maximal filesize for reading
 
 decimal
 
@@ -242,10 +243,78 @@ defer printcommand
    else 
       2drop then ; 
 
+\ Given the address of a line of text in memory, return the length of that line
+\ including the final EOL character
+: #memlinechars ( addr -- u )
+   dup  ( addr addr )
+   begin
+      dup c@ EOL <> while
+      char+  ( addr addr+1 )
+   repeat
+   1+  \ we need length, not count
+   swap - ; 
+
+\ Add a string from memory to the text. Assumes that string includes EOL 
+\ character
+: addmemline ( addr n -- )
+   dup >r  ( addr n ) ( R: n )
+   here  ( addr n addr-h ) ( R: n )
+   dup >r ( addr n addr-h ) ( R: n addr-h )
+   cell+ cell+ ( addr n addr-h+2 ) ( R: n addr-h ) \ start of string area
+   swap move  ( ) ( R: n addr-h )
+   r> r>  ( addr-h n )
+   0 , 0 , 
+   dup allot ( addr-h n ) \ MOVE doesn't allot memory
+   over cell+ ! ( addr-h ) \ save length of string
+   lastline  ( addr-h n )
+   insert-line-after ; 
+
+\ Read a text with EOL-terminated strings from a memory range into the editor,
+\ appending it at the end of the text
+: rr ( addr n -- )
+   begin  ( addr n0 )
+      over #memlinechars  ( addr n0 n )
+   2dup >= while
+      swap  ( addr n n0 )
+      -rot  ( n0 addr n )
+      2dup addmemline ( n0 addr n )
+      dup >r  ( n0 addr n ) ( R: n ) 
+      +  ( n0 addr-n ) ( R: n )
+      swap r>  ( addr-n n0 n ) 
+      -  ( addr-n n )
+   repeat
+   drop 2drop ; 
+
+\ Read text with EOL-Terminated strings from a file into the editor under Gforth. 
+\ Use: "R-FILE <FILENAME>". Appends to the end of the text. Currently, this
+\ routine ignores all error messages
+: rr-file  ( "name" -- )
+   parse-name r/o open-file ( fileid f )
+      0<> if ." Error opening file" then
+   dup  ( fileid fileid ) 
+   MAXFILESIZE allocate ( fileid fileid addr f ) 
+      0<> if ." Error allocating memory" then
+   dup >r  ( fileid fileid addr ) ( R: addr )
+   MAXFILESIZE rot  ( fileid addr n fileid ) ( R: addr )
+   read-file ( fileid n f ) ( R: addr ) 
+      0<> if ." Error reading file" then
+   swap close-file ( n ) ( R: addr ) 
+      0<> if ." Error closing file" then
+   r> swap ( addr n ) 
+
+   \ RR is unhappy if there is no final EOL, so we add one
+   over -rot ( addr addr n ) 
+   2dup + 1+  ( addr addr n addr+n+1 ) 
+   EOL swap c! ( addr addr n ) 
+   1+  ( addr addr n+1 ) 
+   rr  ( addr )
+   free ( f) \ give back the buffer that isn't needed anymore
+      0<> if ." Error freeing buffer after reading file" then ; 
+
 \ Write text to a given memory location as pure text, returning an address and
 \ number fitting for the TYPE or other such command. This does not check if the
-\ source and destination overlap, so use caution! Use: "HERE W"
-: w  ( addr-t -- addr u )
+\ source and destination overlap, so use caution! Use: "HERE WW"
+: ww  ( addr-t -- addr u )
    dup >r
    all 1+ swap ?do  ( addr-t ) 
       dup ( addr-t addr-t ) 
@@ -261,9 +330,9 @@ defer printcommand
 
 \ Write the text to a file under Gforth. Use: "W-FILE <FILENAME>". Will
 \ overwrite any files you might have with the same name
-: w-file  ( "name" -- )
+: ww-file  ( "name" -- )
    parse-name w/o create-file drop  ( fileid ) 
-   here w  ( fileid addr u ) 
+   here ww  ( fileid addr u ) 
    rot dup >r  ( addr u fileid ) ( R: fileid)
    write-file if
       ." Error writing file" r> drop then 
