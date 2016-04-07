@@ -33,7 +33,7 @@ if you want to change a word in a line, you have to retype the whole thing.
 While writing my own Forth, ["Tali Forth"](https://github.com/scotws/TaliForth)
 for the 6502, I realized that there was no standard, simple, small, portable
 editor that was not screen-based in the traditional Forth way (see Samuel A.
-Falvo II's [Vibe](http://kestrelcomputer.github.io/kestrel/2016/03/29/vibe-2.2)
+Falvo II's [VIBE](http://kestrelcomputer.github.io/kestrel/2016/03/29/vibe-2.2)
 as an example of a block editor). So I decided to write my own.
 
 ## Seriously, why don't you write a _real_ editor instead?

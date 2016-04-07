@@ -75,13 +75,25 @@ Put together, this gives us the following Fed words.
 
 ## List of Fed Commands
 
+There are no single-line instructions such as "a" or "i" for input, because
+input is potentially always multi-line, and terminated by a "." (period) as the
+first character of a new line. We keep ```d``` and ```c``` as single-line
+instructions for safety reasons, because they ensure that only one line is
+deleted. 
+
+_n_ *aa* - Append one or more lines after _n._ Terminate input with "." (period)
+on a new line.
+
+_n_ *c* - Replace ("change") line _n_ by one or more lines. Terminate input with
+"." (period) on a new line.
+
+_n m_ *cc* - Replace ("change") lines _n_ to _m_ by one or more lines. Terminate
+input with "." (period) on a new line.
+
+_n_ *ii* - Insert one or more lines before _n._ Terminate input with "."
+(period) in a new line.
 
 
-*_n_ aa* - Add one or more lines to 
-
-
-
-LIST OF FED COMMANDS
 
 Most of these are taken from ed or inspired by them. "n" means a single-line parameter, "n m" a multi-line version. Note that where ed uses the same command for single- and multi-line operations (eg "p" to print one or more lines), we can't do that in Forth because we have no way of knowing how many parameters are on the stack. We solve this problem by doubling the original ed command: 
 
