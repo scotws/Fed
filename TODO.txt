@@ -1,9 +1,7 @@
 To do list for the Fed Editor 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 03. Apr 2016
-This version: 03. Apr 2016
+This version: 06. Apr 2016
 
-- Add reading of memory ranges into working memory ("rr")
-- Add reading of files under Gforth into memory ("r-read")
 - "jj" to join lines
-
+- "mm" to move lines

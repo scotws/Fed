@@ -2,13 +2,20 @@
 \ Copyright 2016 Scot W. Stevenson <scot.stevenson@gmail.com>
 \ Written with gforth 0.7
 \ First version: 10. Jul 2015 
-\ This version: 04. April 2016
+\ This version: 07. April 2016
 
-\ This program is placed in the public domain
+\ This program is free software: you can redistribute it and/or modify
+\ it under the terms of the GNU General Public License as published by
+\ the Free Software Foundation, either version 3 of the License, or
+\ (at your option) any later version.
 
-\ This program is distributed in the hope that it will be useful, but WITHOUT
-\ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-\ FOR A PARTICULAR PURPOSE. Use it at your own risk.
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 \ Inspired by https://www.gnu.org/software/ed/ ; single-linked list code
 \ based on
@@ -150,6 +157,9 @@ defer printcommand
    !  ( addr-a addr-n ) \ link new line to line after append-target
    swap ! ; \ link append-target to new line
 
+\ Save two zeros as placeholder for the headers
+: dummyheader, ( -- )  0 , 0 , ; 
+
 \ Given a line number, start appending text after it, inserting line by line. If
 \ number is out of range, we append to the end of the text. This is the main
 \ insertion word. It works by saving the string that is typed in at the position
@@ -160,7 +170,7 @@ defer printcommand
       cell+ cell+ dup MAXCHARS  ( u addr addr+2 addr+2 u )
       cr accept ( u addr addr+2 u ) 
    tuck eoi? invert while
-      0 , 0 ,   ( u addr u ) \ add header
+      dummyheader,   ( u addr u )
       dup allot   \ retroactively reserve space we used for string
       EOL c, 1+  ( u addr u+1 ) \ add EOL character and allot byte for it
       over cell+ !  ( u addr ) \ save length of string
@@ -263,7 +273,7 @@ defer printcommand
    cell+ cell+ ( addr n addr-h+2 ) ( R: n addr-h ) \ start of string area
    swap move  ( ) ( R: n addr-h )
    r> r>  ( addr-h n )
-   0 , 0 , 
+   dummyheader, 
    dup allot ( addr-h n ) \ MOVE doesn't allot memory
    over cell+ ! ( addr-h ) \ save length of string
    lastline  ( addr-h n )
@@ -338,3 +348,4 @@ defer printcommand
       ." Error writing file" r> drop then 
    r> close-file drop ; 
 
+\ END 
