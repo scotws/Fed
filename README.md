@@ -3,11 +3,11 @@
 Fed is a simple line editor in Forth inspired by the classical Unix editor ed.
 It is designed to be small enough to be included in BYO Forth systems for
 processors such as the 6502 or 65816. Stripped of its comments, it comes to
-about FEHLT Kb of code.  
+about 3.2 Kb of code.  
 
 ## Who's Ed? 
 
-It's a simple line editor, the oldest editor still shipped with modern Unix
+Ed is a simple line editor, the oldest editor still shipped with modern Unix
 systems. The first version was written in 1971. Today it mostly used for jokes
 ("Vim? EMACS? Real programmers use ed!") and some shell scripts. See [the
 Wikipedia entry](https://en.wikipedia.org/wiki/Ed_(text_editor)) on ed and [the

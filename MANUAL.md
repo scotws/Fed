@@ -4,7 +4,7 @@ Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 25. July 2015  
 This version: 07. April 2015  
 
-## For Impatient People
+## For impatient people
 
 Fed is a simple, small line editor in Forth. The code is written in
 [Gforth](https://www.gnu.org/software/gforth/). To test it, start Gforth with
@@ -14,31 +14,30 @@ gforth fed.fs
 To start adding text, type ```laa```. End your input with a "." (period) on a
 new line. Save it to a file with ```ww-file <FILENAME>``` while remembering that
 Fed will overwrite any other file with that name. To leave the editor, remember
-that you're in Forth and type ```bye```.
+that you've been in Forth all the time and only have to type ```bye```.
 
 
 ## Background 
 
 Nowadays, large Forth systems use files and normal editors such as vim or EMACS.
-Forth editors traditionally work with a "screen"-based format of 16 lines of 64
-characters for a total of 1024 bytes per screen (a "block").
+But traditionally, Forth editors worked with a "screen"-based format of 16 lines
+of 64 characters for a total of 1024 bytes per screen (a "block").
 [Comp.lang.forth](https://groups.google.com/forum/#!topic/comp.lang.forth/f1S_EotSc7g)
 has a discussion about block editors; see
 [VIBE](http://kestrelcomputer.github.io/kestrel/2016/03/29/vibe-2.2) as a modern
-example of them, and the Gforth Manual [page on
+example of one, and the Gforth Manual [page on
 blocks](https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Blocks.html)
 for more background.
 
-Block-based editors, however, are wasteful and require at least some basic
-rendering commands that might not be present with a hobbyist system. In contrast,
-line editors don't care about the screen at all, they just print lines to the
-whatever output are there. In fact, ed was created in an age when output was to
-paper teletypes. 
+Block-based editors, however, are wasteful and require a screen of some sort. In
+contrast, line editors don't care about the screen at all, they just print lines
+to the whatever output is there. In fact, ed was created in an age when output
+was to paper teletypes. 
 
 Fed is meant to be small. It the fully commented form, it currently is about
 13.3 Kb in size. To make it easier to use in small, BYO systems, there is a
-"stripped" version included ```fed-stripped.fs``` without any commentary at all.
-This comes to 3.2 Kb in size.
+"stripped" version included (```fed-stripped.fs```) where all the commentary has
+been removed. This comes to 3.2 Kb in size.
 
 
 ## Basic Command Structure
@@ -132,7 +131,7 @@ commands are used so often, we define compound words.
 
 ## Examples 
 
-Start editing by calling Fed with ```gforth fed.ed``` then type ```laa``` to add
+Start editing by calling Fed with ```gforth fed.fs``` then type ```laa``` to add
 text to the bottom.
 ```
 This is line
