@@ -12,7 +12,7 @@ Fed is a simple, small line editor in Forth. The code is written in
 gforth fed.fs
 ```
 To start adding text, type ```laa```. End your input with a "." (period) on a
-new line. Save it to a file with ```w-file <FILENAME>``` while remembering that
+new line. Save it to a file with ```ww-file <FILENAME>``` while remembering that
 Fed will overwrite any other file with that name. To leave the editor, remember
 that you're in Forth and type ```bye```.
 
@@ -30,10 +30,15 @@ blocks](https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Blocks.html)
 for more background.
 
 Block-based editors, however, are wasteful and require at least some basic
-rendering commands that might not be present with a hobbist system. In contrast,
+rendering commands that might not be present with a hobbyist system. In contrast,
 line editors don't care about the screen at all, they just print lines to the
 whatever output are there. In fact, ed was created in an age when output was to
 paper teletypes. 
+
+Fed is meant to be small. It the fully commented form, it currently is about
+13.3 Kb in size. To make it easier to use in small, BYO systems, there is a
+"stripped" version included ```fed-stripped.fs``` without any commentary at all.
+This comes to 3.2 Kb in size.
 
 
 ## Basic Command Structure
@@ -62,7 +67,7 @@ numbers.
 This is unnatural for Forth, which works with the stack. We therefore split the
 range parameter and the command, which gives us ```1 p``` for the first example.
 The second example gets us into trouble: Forth would not know that ```1 2 p```
-should use the firt two entries on the stack instead of the first one only.
+should use the first two entries on the stack instead of the first one only.
 
 To get around this, we use **single letters for single lines** and **double
 letters for ranges.** This way, ed's ```1,2p``` becomes ```1 2 pp``` in Fed.
