@@ -99,8 +99,6 @@ deleted. Note there is no way to undo any of these actions.
 | _n m_ **pp** | Print lines _n_ to _m_ without the line numbers. |
 | _addr u_ **rr** | Read a text consisting of one or multiple lines from memory, starting at location _addr_ and continuing for _u_ characters. The text is appended to existing text. |
 | **rr-file** _filename_ | Read a text from file _filename,_ appending it to any existing text. Written for Gforth. |
-| _addr u_ **rr** | Read a text consisting of one or multiple lines from memory, starting at location _addr_ and continuing for _u_ characters. The text is appended to existing text. |
-| **rr-file** _filename_ | Read a text from file _filename,_ appending it to any existing text. Written for Gforth. |
 | _addr_ **ww** | Write complete text to memory location _addr_ as pure text, returning _addr u_ on the stack in a format accepted for instance by the Forth TYPE word. |
 | **ww-file** _filename_ | Write the complete text to file _filename,_ overwriting any existing file. Written for Gforth. |
 
