@@ -1,4 +1,4 @@
-# Fed - A ed-inspired line editor in Forth 
+# Fed - An ed-inspired line editor in Forth 
 
 Fed is a simple line editor in Forth inspired by the classical Unix editor ed.
 It is designed to be small enough to be included in BYO Forth systems for
