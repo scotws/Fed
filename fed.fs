@@ -54,8 +54,8 @@ variable text  0 text !
    repeat
    drop 1- ;   \ we always count one line too many
 
-\ Synonym for #LINES to make typing more intuitive. Use: "LASTLINE P"
-: lastline ( -- u )  #lines ; 
+\ Synonym for #LINES to make typing more intuitive. Use: "LL P"
+: ll ( -- u )  #lines ; 
 
 \ Convert a line number of a text to address. Note we start counting at 1, not
 \ at 0, because this is a program for normal humans. Assumes we've checked that
@@ -181,13 +181,13 @@ defer printcommand
 
 \ Ease-of-use synonym to add lines to the end of the text. This is what you
 \ start off with when the text is empty. 
-: laa  ( -- ) lastline aa ; 
+: laa  ( -- ) ll aa ; 
 
 \ Given a line number, insert lines before it. Any number smaller or equal to
 \ zero will add text before first line, any number larger than the last line
 \ will append it to the end of the text. Use: "2 II"
 : ii  ( u -- ) 
-   lastline 1+ min   \ if > than lastline, we're lastline 1+
+   ll 1+ min   \ if > than last line we're last line 1+
    1-  \ move up one line before the one requested ...
    0 max  \ ... but not so far that we're negative
    aa ; 
@@ -276,7 +276,7 @@ defer printcommand
    dummyheader, 
    dup allot ( addr-h n ) \ MOVE doesn't allot memory
    over cell+ ! ( addr-h ) \ save length of string
-   lastline  ( addr-h n )
+   ll ( addr-h n )
    insert-line-after ; 
 
 \ Read a text with EOL-terminated strings from a memory range into the editor,
