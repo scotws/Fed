@@ -81,49 +81,51 @@ first character of a new line. We keep ```d``` and ```c``` as single-line
 instructions for safety reasons, because they ensure that only one line is
 deleted. Note there is no way to undo any of these actions.
 
-_n_ **aa** - Append one or more lines after _n._ Terminate input with "." (period)
-on a new line.
+| Format | Affect |
+| --- | :--- |
+| _n_ **aa** | Append one or more lines after _n._ Terminate input with "."
+(period) on a new line. |
 
-_n_ **c** - Replace ("change") line _n_ by one or more lines. Terminate input with
-"." (period) on a new line. 
+| _n_ **c** | Replace ("change") line _n_ by one or more lines. Terminate input with
+"." (period) on a new line. |
 
 _n m_ **cc** - Replace ("change") lines _n_ to _m_ by one or more lines. Terminate
 input with "." (period) on a new line.
 
-_n_ **d** - Delete line _n._ 
+* _n_ **d** - Delete line _n._ 
 
-_n m_ **dd** - Delete lines _n_ to _m._
+. _n m_ **dd** - Delete lines _n_ to _m._
 
-_n_ **ii** - Insert one or more lines before _n._ Terminate input with "."
+* _n_ **ii** - Insert one or more lines before _n._ Terminate input with "."
 (period) in a new line.
 
-_n_ **n** - Print line _n_ with the line number.
+* _n_ **n** - Print line _n_ with the line number.
 
-_n m_ **nn** - Print lines _n_ to _m_ with the line numbers.
+* _n m_ **nn** - Print lines _n_ to _m_ with the line numbers.
 
-_n_ **p** - Print line _n_ without the line number.
+* _n_ **p** - Print line _n_ without the line number.
 
-_n m_ **pp** - Print lines _n_ to _m_ without the line numbers.
+* _n m_ **pp** - Print lines _n_ to _m_ without the line numbers.
 
-_addr u_ **rr** - Read a text consisting of one or multiple lines from memory,
+* _addr u_ **rr** - Read a text consisting of one or multiple lines from memory,
 starting at location _addr_ and continuing for _u_ characters. The text is
 currently appended to any existing text.
 
-*rr-file* _<filename>_ - Read a text from file _<filename>,_ appending
+* *rr-file* _<filename>_ - Read a text from file _<filename>,_ appending
 it to any existing text. Written for Gforth.
 
-_addr u_ **rr** - Read a text consisting of one or multiple lines from memory,
+* _addr u_ **rr** - Read a text consisting of one or multiple lines from memory,
 starting at location _addr_ and continuing for _u_ characters. The text is
 currently appended to any existing text.
 
-**rr-file** _<filename>_ - Read a text from file _<filename>,_ appending
+* **rr-file** _filename_ - Read a text from file _filename,_ appending
 it to any existing text. Written for Gforth.
 
-_addr_ **ww** - Write complete text to memory location _addr_ as pure text,
+* _addr_ **ww** - Write complete text to memory location _addr_ as pure text,
 returning _addr u_ on the stack in a format accepted for instance by the Forth
 TYPE word.
 
-**ww-file** _<filename>_ - Write the complete text to file _<filename>,_
+* **ww-file** _filename_ - Write the complete text to file _filename,_
 overwriting any existing file. Written for Gforth.
 
 
